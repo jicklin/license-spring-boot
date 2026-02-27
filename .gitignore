@@ -24,5 +24,6 @@ data/
 .license-cache
 
 # Keys (sensitive)
+doc/keys/
 license-server/keys/
 license-demo/keys/

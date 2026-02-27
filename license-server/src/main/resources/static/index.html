@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License 管理控制台</title>
+    <style>
+        /* ========== CSS Variables & Reset ========== */
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d28;
+            --bg-card: #212533;
+            --bg-input: #2a2e3d;
+            --bg-hover: #2e3345;
+            --border: #333850;
+            --text-primary: #e4e6ef;
+            --text-secondary: #8b8fa6;
+            --text-muted: #5a5f7a;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.12);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.12);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.12);
+            --info: #3b82f6;
+            --info-bg: rgba(59, 130, 246, 0.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+                'Microsoft YaHei', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== Header ========== */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title .logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #fff;
+        }
+
+        .header-title h1 {
+            font-size: 20px; font-weight: 600;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .header-status {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ========== Tabs ========== */
+        .tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+        }
+
+        .tab {
+            padding: 14px 24px;
+            font-size: 14px; font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .tab:hover { color: var(--text-primary); }
+
+        .tab.active {
+            color: var(--accent-light);
+            border-bottom-color: var(--accent);
+        }
+
+        /* ========== Content ========== */
+        .content { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ========== Stats Cards ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .stat-icon {
+            width: 40px; height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-bottom: 12px;
+        }
+
+        .stat-card .stat-icon.blue { background: var(--info-bg); }
+        .stat-card .stat-icon.green { background: var(--success-bg); }
+        .stat-card .stat-icon.yellow { background: var(--warning-bg); }
+        .stat-card .stat-icon.red { background: var(--danger-bg); }
+
+        .stat-card .stat-value {
+            font-size: 28px; font-weight: 700;
+            color: var(--text-primary); line-height: 1;
+        }
+
+        .stat-card .stat-label {
+            font-size: 13px; color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* ========== Section ========== */
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .section-header h3 {
+            font-size: 15px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .section-body { padding: 20px; }
+
+        /* ========== Form ========== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .form-group label {
+            font-size: 13px; font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 60px; }
+
+        .form-actions {
+            display: flex; gap: 12px; margin-top: 16px;
+        }
+
+        /* ========== Buttons ========== */
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 500;
+            border: none; cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .btn-danger { background: var(--danger-bg); color: var(--danger); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
+
+        .btn-ghost {
+            background: transparent; color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        .btn-icon {
+            width: 32px; height: 32px; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: var(--radius-sm); background: transparent;
+            border: 1px solid var(--border); color: var(--text-secondary);
+            cursor: pointer; transition: var(--transition);
+        }
+
+        .btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .btn-icon.danger:hover { background: var(--danger-bg); color: var(--danger); }
+
+        /* ========== Table ========== */
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%; border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead th {
+            text-align: left; padding: 12px 16px;
+            font-weight: 600; color: var(--text-secondary);
+            font-size: 12px; text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        tbody tr:hover { background: var(--bg-hover); }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .code-cell {
+            max-width: 200px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px; color: var(--accent-light);
+        }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 500;
+        }
+
+        .badge-success { background: var(--success-bg); color: var(--success); }
+        .badge-warning { background: var(--warning-bg); color: var(--warning); }
+        .badge-danger { background: var(--danger-bg); color: var(--danger); }
+
+        .empty-state {
+            text-align: center; padding: 48px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; }
+
+        /* ========== Toast ========== */
+        .toast-container {
+            position: fixed; top: 24px; right: 24px;
+            z-index: 10000; display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .toast {
+            padding: 12px 20px; border-radius: var(--radius-sm);
+            font-size: 13px; color: #fff;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .toast.success { background: #16a34a; }
+        .toast.error { background: #dc2626; }
+        .toast.info { background: #2563eb; }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        /* ========== Modal ========== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9000;
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 90%; max-width: 640px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .modal-header h3 { font-size: 16px; }
+
+        .modal-body { padding: 20px; }
+        .modal-body pre {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px; line-height: 1.6;
+            color: var(--accent-light);
+            overflow-x: auto; word-break: break-all; white-space: pre-wrap;
+            max-height: 300px;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: flex-end; gap: 8px;
+        }
+
+        /* ========== Login ========== */
+        .login-overlay {
+            position: fixed; inset: 0;
+            background: var(--bg-primary);
+            z-index: 20000;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+            width: 90%; max-width: 400px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .login-box .login-logo {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; color: #fff;
+            margin: 0 auto 20px;
+        }
+
+        .login-box h2 {
+            font-size: 22px; margin-bottom: 8px;
+        }
+
+        .login-box .login-desc {
+            font-size: 13px; color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .login-box .form-group { margin-bottom: 16px; text-align: left; }
+
+        .login-box .login-error {
+            color: var(--danger); font-size: 13px;
+            margin-bottom: 12px; display: none;
+        }
+
+        .header-actions {
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .btn-logout {
+            padding: 6px 12px; border-radius: var(--radius-sm);
+            font-size: 12px; background: transparent;
+            border: 1px solid var(--border); color: var(--text-secondary);
+            cursor: pointer; transition: var(--transition);
+        }
+        .btn-logout:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            .header { padding: 16px; }
+            .tabs { padding: 0 16px; }
+            .content { padding: 16px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Overlay -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="login-logo">🔐</div>
+        <h2>License 管理控制台</h2>
+        <p class="login-desc">请输入管理员 Token 以访问控制台</p>
+        <div class="login-error" id="loginError">Token 验证失败，请重试</div>
+        <form onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label>管理员 Token</label>
+                <input type="password" id="loginToken" placeholder="请输入 admin-token" required
+                       style="width: 100%;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">🔓 登录</button>
+        </form>
+    </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-title">
+        <div class="logo">🔐</div>
+        <h1>License 管理控制台</h1>
+    </div>
+    <div class="header-actions">
+        <div class="header-status">
+            <div class="status-dot"></div>
+            <span id="serverStatus">运行中</span>
+        </div>
+        <button class="btn-logout" onclick="handleLogout()">🚪 退出登录</button>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <div class="tab active" data-tab="license" onclick="switchTab('license')">🗝️ 授权码管理</div>
+    <div class="tab" data-tab="nodes" onclick="switchTab('nodes')">📡 节点监控</div>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+    <!-- Tab 1: License Management -->
+    <div class="tab-content active" id="tab-license">
+
+        <!-- Generate Form -->
+        <div class="section">
+            <div class="section-header">
+                <h3>✨ 签发授权码</h3>
+            </div>
+            <div class="section-body">
+                <form id="generateForm" onsubmit="return generateLicense(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>授权主体 *</label>
+                            <input type="text" id="subject" placeholder="例: 某某公司" required>
+                        </div>
+                        <div class="form-group">
+                            <label>到期时间 *</label>
+                            <input type="datetime-local" id="expiryTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label>最大机器数 *</label>
+                            <input type="number" id="maxMachineCount" min="1" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>授权模块</label>
+                            <input type="text" id="modules" placeholder="逗号分隔, 例: module-a,module-b">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>描述</label>
+                            <textarea id="description" placeholder="可选, 备注信息"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">🔑 签发授权码</button>
+                        <button type="reset" class="btn btn-ghost">重置</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- License List -->
+        <div class="section">
+            <div class="section-header">
+                <h3>📋 已签发授权码 <span id="licenseCount" style="color: var(--text-muted); font-weight: 400;"></span></h3>
+                <button class="btn btn-ghost btn-sm" onclick="loadLicenses()">🔄 刷新</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>授权主体</th>
+                            <th>签发时间</th>
+                            <th>到期时间</th>
+                            <th>最大机器数</th>
+                            <th>状态</th>
+                            <th>在线节点</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="licenseTableBody">
+                        <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📭</div><p>暂无授权码记录</p></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Node Monitoring -->
+    <div class="tab-content" id="tab-nodes">
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon blue">📡</div>
+                <div class="stat-value" id="statOnline">0</div>
+                <div class="stat-label">在线节点</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">📥</div>
+                <div class="stat-value" id="statRegister">0</div>
+                <div class="stat-label">注册请求</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon yellow">💓</div>
+                <div class="stat-value" id="statHeartbeat">0</div>
+                <div class="stat-label">心跳请求</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red">📤</div>
+                <div class="stat-value" id="statUnregister">0</div>
+                <div class="stat-label">注销请求</div>
+            </div>
+        </div>
+
+        <!-- Node Groups by License -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h3 style="font-size: 15px; font-weight: 600;">🖥️ 授权码节点监控</h3>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 12px; color: var(--text-muted);">每 10 秒自动刷新</span>
+                <button class="btn btn-ghost btn-sm" onclick="loadNodes()">🔄 刷新</button>
+            </div>
+        </div>
+        <div id="nodeGroupsContainer">
+            <div class="empty-state"><div class="empty-icon">📡</div><p>暂无在线节点</p></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    // ========== Tab Switching ==========
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById('tab-' + tabName).classList.add('active');
+
+        if (tabName === 'nodes') { loadNodes(); loadStats(); }
+        if (tabName === 'license') { loadLicenses(); }
+    }
+
+    // ========== Toast ==========
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+        toast.innerHTML = `${icons[type] || ''} ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ========== Auth ==========
+    function getToken() {
+        return localStorage.getItem('license_admin_token') || '';
+    }
+
+    function setToken(token) {
+        localStorage.setItem('license_admin_token', token);
+    }
+
+    function clearToken() {
+        localStorage.removeItem('license_admin_token');
+    }
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        const token = document.getElementById('loginToken').value.trim();
+        if (!token) return;
+
+        // 尝试用该 Token 调用一个管理 API 验证
+        try {
+            const resp = await fetch('/api/license/list', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+            if (resp.status === 401) {
+                document.getElementById('loginError').style.display = 'block';
+                return false;
+            }
+            // 登录成功
+            setToken(token);
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('loginError').style.display = 'none';
+            showToast('登录成功', 'success');
+            loadLicenses();
+        } catch (e) {
+            showToast('连接失败: ' + e.message, 'error');
+        }
+        return false;
+    }
+
+    function handleLogout() {
+        clearToken();
+        document.getElementById('loginOverlay').style.display = 'flex';
+        document.getElementById('loginToken').value = '';
+        showToast('已退出登录', 'info');
+    }
+
+    function checkAuth() {
+        const token = getToken();
+        if (token) {
+            // 有缓存 Token，验证是否仍有效
+            fetch('/api/license/list', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            }).then(resp => {
+                if (resp.status === 401) {
+                    clearToken();
+                    document.getElementById('loginOverlay').style.display = 'flex';
+                } else {
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    loadLicenses();
+                }
+            }).catch(() => {
+                // 服务不可达，仍然显示登录页
+                document.getElementById('loginOverlay').style.display = 'flex';
+            });
+        } else {
+            document.getElementById('loginOverlay').style.display = 'flex';
+        }
+    }
+
+    // ========== API Helper ==========
+    async function api(url, options = {}) {
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            const token = getToken();
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            const resp = await fetch(url, {
+                headers,
+                ...options
+            });
+            // 401 时跳转登录
+            if (resp.status === 401) {
+                clearToken();
+                document.getElementById('loginOverlay').style.display = 'flex';
+                showToast('登录已过期，请重新登录', 'error');
+                return null;
+            }
+            return await resp.json();
+        } catch (e) {
+            showToast('请求失败: ' + e.message, 'error');
+            return null;
+        }
+    }
+
+    // ========== Date Helpers ==========
+    function formatDate(ts) {
+        if (!ts) return '-';
+        const d = new Date(ts);
+        return d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0') + ' ' +
+            String(d.getHours()).padStart(2, '0') + ':' +
+            String(d.getMinutes()).padStart(2, '0') + ':' +
+            String(d.getSeconds()).padStart(2, '0');
+    }
+
+    function timeAgo(ts) {
+        if (!ts) return '-';
+        const diff = Date.now() - ts;
+        if (diff < 60000) return Math.floor(diff / 1000) + ' 秒前';
+        if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
+        return Math.floor(diff / 86400000) + ' 天前';
+    }
+
+    // ========== License Management ==========
+    async function generateLicense(event) {
+        event.preventDefault();
+
+        const expiryInput = document.getElementById('expiryTime').value;
+        const modulesInput = document.getElementById('modules').value.trim();
+
+        const payload = {
+            subject: document.getElementById('subject').value.trim(),
+            expiryTime: new Date(expiryInput).getTime(),
+            maxMachineCount: parseInt(document.getElementById('maxMachineCount').value),
+            description: document.getElementById('description').value.trim()
+        };
+
+        if (modulesInput) {
+            payload.modules = modulesInput.split(',').map(m => m.trim()).filter(m => m);
+        }
+
+        const result = await api('/api/license/generate', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        if (result && result.code === 200) {
+            showToast('授权码签发成功', 'success');
+            document.getElementById('generateForm').reset();
+            showCodeModal(result.data.licenseCode);
+            loadLicenses();
+        } else if (result) {
+            showToast(result.message || '签发失败', 'error');
+        }
+    }
+
+    async function loadLicenses() {
+        const result = await api('/api/license/list');
+        if (!result || result.code !== 200) return;
+
+        const data = result.data || [];
+        const countSpan = document.getElementById('licenseCount');
+        countSpan.textContent = data.length > 0 ? `(${data.length} 条)` : '';
+
+        const tbody = document.getElementById('licenseTableBody');
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📭</div><p>暂无授权码记录</p></div></td></tr>';
+            return;
+        }
+
+        // Sort by createTime desc
+        data.sort((a, b) => (b.createTime || 0) - (a.createTime || 0));
+
+        tbody.innerHTML = data.map(record => {
+            const p = record.payload || {};
+            const now = Date.now();
+            const expired = p.expiryTime && now > p.expiryTime;
+            const statusBadge = expired
+                ? '<span class="badge badge-danger">已过期</span>'
+                : '<span class="badge badge-success">有效</span>';
+
+            return `<tr>
+                <td><strong>${escHtml(record.subject || '-')}</strong></td>
+                <td>${formatDate(record.createTime)}</td>
+                <td>${formatDate(p.expiryTime)}</td>
+                <td>${p.maxMachineCount || '-'}</td>
+                <td>${statusBadge}</td>
+                <td>-</td>
+                <td style="white-space: nowrap;">
+                    <button class="btn-icon" title="查看授权码" onclick='showCodeModal(${JSON.stringify(JSON.stringify(record.licenseCode))})'>📋</button>
+                    <button class="btn-icon danger" title="删除" onclick="deleteLicense('${record.id}')">🗑️</button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function deleteLicense(id) {
+        if (!confirm('确定要删除该授权码记录吗？此操作不影响已使用的授权码。')) return;
+        const result = await api(`/api/license/${id}`, { method: 'DELETE' });
+        if (result && result.code === 200) {
+            showToast('删除成功', 'success');
+            loadLicenses();
+        } else if (result) {
+            showToast(result.message || '删除失败', 'error');
+        }
+    }
+
+    // ========== Code Modal ==========
+    function showCodeModal(code) {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+        overlay.innerHTML = `
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>🔑 授权码</h3>
+                    <button class="btn-icon" onclick="this.closest('.modal-overlay').remove()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <pre id="codeContent">${escHtml(code)}</pre>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">关闭</button>
+                    <button class="btn btn-primary" onclick="copyCode()">📋 复制</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+    }
+
+    function copyCode() {
+        const code = document.getElementById('codeContent').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            showToast('授权码已复制到剪贴板', 'success');
+        }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = code;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('授权码已复制到剪贴板', 'success');
+        });
+    }
+
+    // ========== Node Monitoring ==========
+    async function loadStats() {
+        const result = await api('/api/node/stats');
+        if (!result || result.code !== 200) return;
+
+        const d = result.data;
+        animateCounter('statOnline', d.onlineNodeCount || 0);
+        animateCounter('statRegister', d.registerCount || 0);
+        animateCounter('statHeartbeat', d.heartbeatCount || 0);
+        animateCounter('statUnregister', d.unregisterCount || 0);
+    }
+
+    function animateCounter(id, target) {
+        const el = document.getElementById(id);
+        const current = parseInt(el.textContent) || 0;
+        if (current === target) return;
+
+        const step = target > current ? 1 : -1;
+        const diff = Math.abs(target - current);
+        const interval = Math.max(10, Math.min(50, 500 / diff));
+        let val = current;
+
+        const timer = setInterval(() => {
+            val += step;
+            el.textContent = val.toLocaleString();
+            if (val === target) clearInterval(timer);
+        }, interval);
+    }
+
+    async function loadNodes() {
+        // 并行加载节点和授权码列表
+        const [nodeResult, licenseResult] = await Promise.all([
+            api('/api/node/online'),
+            api('/api/license/list')
+        ]);
+        if (!nodeResult || nodeResult.code !== 200) return;
+
+        loadStats();
+
+        const nodes = nodeResult.data || [];
+        const licenses = (licenseResult && licenseResult.code === 200) ? (licenseResult.data || []) : [];
+        const container = document.getElementById('nodeGroupsContainer');
+
+        // 构建 licenseCode → subject 映射
+        const licenseMap = {};
+        licenses.forEach(r => {
+            licenseMap[r.licenseCode] = r;
+        });
+
+        // 按 licenseCode 分组节点
+        const groups = {};
+        nodes.forEach(node => {
+            const code = node.licenseCode || 'unknown';
+            if (!groups[code]) groups[code] = [];
+            groups[code].push(node);
+        });
+
+        if (Object.keys(groups).length === 0) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-icon">📡</div><p>暂无在线节点</p></div>';
+            return;
+        }
+
+        container.innerHTML = Object.entries(groups).map(([code, groupNodes]) => {
+            const record = licenseMap[code];
+            const subject = record ? record.subject : '未知授权主体';
+            const p = record ? (record.payload || {}) : {};
+            const maxCount = p.maxMachineCount || '?';
+            const expired = p.expiryTime && Date.now() > p.expiryTime;
+            const statusBadge = expired
+                ? '<span class="badge badge-danger">已过期</span>'
+                : '<span class="badge badge-success">有效</span>';
+            const usagePercent = p.maxMachineCount ? Math.round(groupNodes.length / p.maxMachineCount * 100) : 0;
+            const usageColor = usagePercent >= 90 ? 'var(--danger)' : usagePercent >= 60 ? 'var(--warning)' : 'var(--success)';
+
+            const nodeRows = groupNodes.map(node => {
+                const m = node.machineInfo || {};
+                const ips = (m.ipAddress || []).join(', ') || '-';
+                const macs = (m.macAddress || []).join(', ') || '-';
+                return `<tr>
+                    <td>${escHtml(m.hostname || '-')}</td>
+                    <td>${escHtml(ips)}</td>
+                    <td style="font-size:11px; font-family: 'SF Mono','Fira Code',monospace;">${escHtml(macs)}</td>
+                    <td class="code-cell" title="${escHtml(m.machineId || '')}">${escHtml(m.machineId || '-')}</td>
+                    <td class="code-cell" title="${escHtml(m.systemUuid || '')}">${escHtml(m.systemUuid || '-')}</td>
+                    <td>${formatDate(node.registerTime)}</td>
+                    <td>${timeAgo(node.lastHeartbeatTime)}</td>
+                </tr>`;
+            }).join('');
+
+            return `<div class="section" style="margin-bottom: 16px;">
+                <div class="section-header" style="flex-wrap: wrap; gap: 8px;">
+                    <h3 style="display: flex; align-items: center; gap: 10px;">
+                        🏢 ${escHtml(subject)}
+                        ${statusBadge}
+                    </h3>
+                    <div style="display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text-secondary);">
+                        <span>到期: ${formatDate(p.expiryTime)}</span>
+                        <span style="color: ${usageColor}; font-weight: 600;">节点: ${groupNodes.length} / ${maxCount}</span>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th>主机名</th>
+                            <th>IP 地址</th>
+                            <th>MAC 地址</th>
+                            <th>Machine ID</th>
+                            <th>System UUID</th>
+                            <th>注册时间</th>
+                            <th>最后心跳</th>
+                        </tr></thead>
+                        <tbody>${nodeRows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ========== Utils ==========
+    function escHtml(str) {
+        const el = document.createElement('span');
+        el.textContent = str || '';
+        return el.innerHTML;
+    }
+
+    // ========== Auto Refresh ==========
+    let autoRefreshTimer = null;
+
+    function startAutoRefresh() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        autoRefreshTimer = setInterval(() => {
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab && activeTab.dataset.tab === 'nodes') {
+                loadNodes();
+            }
+        }, 10000);
+    }
+
+    // ========== Init ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuth();
+        startAutoRefresh();
+
+        // Set default expiry to 1 year from now
+        const now = new Date();
+        now.setFullYear(now.getFullYear() + 1);
+        const defaultExpiry = now.toISOString().slice(0, 16);
+        document.getElementById('expiryTime').value = defaultExpiry;
+    });
+</script>
+
+</body>
+</html>

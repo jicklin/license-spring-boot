@@ -1,0 +1,20 @@
+server:
+  port: 8100
+
+license:
+  # RSA 私钥文件路径（PEM 格式）
+  private-key-path: ${LICENSE_PRIVATE_KEY_PATH:./keys/private_key.pem}
+  # RSA 公钥文件路径（PEM 格式）
+  public-key-path: ${LICENSE_PUBLIC_KEY_PATH:./keys/public_key.pem}
+  # 节点心跳超时时间（秒），超过此时间未收到心跳则自动释放
+  node-timeout-seconds: 300
+  # 节点持久化文件路径（重启后自动恢复节点数据）
+  node-persist-path: ${LICENSE_NODE_PERSIST_PATH:./data/nodes.json}
+  # 授权码持久化文件路径
+  license-persist-path: ${LICENSE_PERSIST_PATH:./data/licenses.json}
+  # 管理 API 鉴权 Token（建议通过环境变量设置，为空则不启用鉴权）
+  admin-token: ${LICENSE_ADMIN_TOKEN:}
+
+logging:
+  level:
+    com.example.license: DEBUG

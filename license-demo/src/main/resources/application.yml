@@ -1,0 +1,22 @@
+server:
+  port: 8200
+
+license:
+  # 授权码（从 License Server 签发获得）
+  code: ${LICENSE_CODE:eyJzdWJqZWN0Ijoi5rWL6K-VIiwiaXNzdWVkVGltZSI6MTc3MjE4NDM5NDAwOCwiZXhwaXJ5VGltZSI6MTgwMzY5MTU2MDAwMCwibWF4TWFjaGluZUNvdW50IjoxLCJtb2R1bGVzIjpudWxsLCJkZXNjcmlwdGlvbiI6IiJ9.H21SIMEaOdGxiu4dKnH-BZsTjyPR3tyANXa4vSSrtcNJITel5MHl9a4yy6c5XRKnVoIwvRKS8BscVmhJW3hOSdPHVQakb8JhbEpYWHOUXQNLgfCoUcIn7_fjMyY7C4Zn4usSL80vQKSv457uqGNNF_u3DsekgBF1V5PZV0_BMXJpQvj1x61E8SKDg8rexn9nEN65hIsbqr2PZnLgMymYPm5y747CnEiQCU5rrzLAyb7fdw9OFGohuoJL6BIKuuQEqT-LZRRlJuyBZQjiGqZDHEoEn730zYCj_6liVPN0Vzl3DAu4DCToOg1VfWdnclxBxCe8MRS6BUYZBBSDUCt3TA}
+  # License Server 地址
+  server-url: ${LICENSE_SERVER_URL:http://localhost:8100}
+  # RSA 公钥文件路径（用于离线验证授权码签名）
+  public-key-path: ${LICENSE_PUBLIC_KEY_PATH:./keys/public_key.pem}
+  # 心跳间隔（秒）
+  heartbeat-interval-seconds: 120
+  # 离线宽限期（小时）
+  grace-period-hours: 72
+  # 本地缓存文件路径
+  cache-path: ./.license-cache
+  # 不需要 License 校验的路径
+  exclude-paths: /actuator/**,/error,/api/machine/info,/api/license/status
+
+logging:
+  level:
+    com.example.license: DEBUG

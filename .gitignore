@@ -1,0 +1,28 @@
+# Build
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (runtime generated)
+data/
+*.json.tmp
+
+# License cache
+.license-cache
+
+# Keys (sensitive)
+license-server/keys/
+license-demo/keys/
